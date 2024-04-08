@@ -1,0 +1,53 @@
+---
+title: "BusqueImóveis-SP"
+author: "Fernando Corrêa"
+output: html_document
+runtime: shiny
+---
+
+<h1>Busque venda de imóveis pelo endereço<\h1>
+
+
+
+A prefeitura de São Paulo divulga tabelas com muitas transações imobiliárias, incluindo valor e endereço.
+
+Quer procurar algum imóvel? 
+
+Digite o endereço abaixo e devolvemos para você o **valor** e as **datas de negociação** que estão disponíveis no site da prefeitura.
+
+```{r filtro, echo = FALSE}
+
+library(shiny)
+library(tidyverse)
+
+dados <- readRDS("resumido.rds")
+
+shiny::textInput(
+  "endereco",
+  label = "Busque aqui um endereço",
+  value = "123")
+
+actionButton("buscar", "Buscar Imóveis")
+```
+
+```{r, echo = FALSE}
+tabela <- eventReactive(input$buscar, {
+  dados |> 
+      dplyr::filter(
+        stringr::str_detect(
+          paste(
+            `Nome do Logradouro`,
+            `Número`),
+          input$endereco
+        )
+      )
+}
+)
+
+shiny::renderDataTable(
+  DT::datatable(
+    tabela()
+  )
+)
+```
+
