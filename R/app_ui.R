@@ -10,14 +10,18 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic
     bslib::page_navbar(
-      title = "ITBI",
+      title = "SP Imóveis",
       fillable = FALSE,
       bslib::nav_panel(
-        title = "Buscar imóvel",
-        mod_pag_buscar_imovel_ui("pag_buscar_imovel_1")
+        title = "Buscar por rua",
+        mod_pag_buscar_por_rua_ui("pag_buscar_por_rua_1")
       ),
       bslib::nav_panel(
-        title = "pag2"
+        title = "Busca avançada",
+        mod_pag_busca_avancada_ui("pag_busca_avancada_1")
+      ),
+      bslib::nav_panel(
+        title = "Buscar no mapa"
       )
     )
   )

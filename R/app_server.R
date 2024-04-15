@@ -7,5 +7,8 @@
 app_server <- function(input, output, session) {
   # Your application server logic
   
-  mod_pag_buscar_imovel_server("pag_buscar_imovel_1")
+  con <- RSQLite::dbConnect(RSQLite::SQLite(), "dados.sqlite")
+  
+  mod_pag_buscar_por_rua_server("pag_buscar_por_rua_1", con)
+  mod_pag_busca_avancada_server("pag_busca_avancada_1", con)
 }
