@@ -1,17 +1,18 @@
 ## code to prepare `dados` dataset goes here
 
-dados_raw <- readRDS("data-raw/dados_raw.rds")
+dados_raw <- readRDS("data-raw/tudo_junto.rds")
 
 dados <- dados_raw |> 
-  janitor::clean_names() |> 
-  dplyr::rename(
-    end_rua = nome_do_logradouro,
-    end_num = numero,
-    end_complemento = complemento,
-    venda_prop_transmitida = proporcao_transmitida_percent,
-    venda_valor = valor_de_transacao_declarado_pelo_contribuinte,
-    venda_data = data_de_transacao,
-    imovel_area = area_construida_m2
+  #janitor::clean_names() |> 
+  dplyr::transmute(
+    end_rua = `Nome do Logradouro`,
+    end_num = Número,
+    end_complemento = Complemento,
+    end_bairro = Bairro,
+    venda_prop_transmitida = `Proporção Transmitida (%)`,
+    venda_valor = `Valor de Transação (declarado pelo contribuinte)`,
+    venda_data = `Data de Transação`,
+    imovel_area = `Área Construída (m2)`
   )
 
 con <- RSQLite::dbConnect(RSQLite::SQLite(), "dados.sqlite")
