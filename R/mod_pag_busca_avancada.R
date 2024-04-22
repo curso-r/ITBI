@@ -59,7 +59,10 @@ mod_pag_busca_avancada_ui <- function(id){
         )
       )
     ),
-    reactable::reactableOutput(ns("tabela"))
+    bslib::layout_columns(col_widths = c(4,8),
+      leaflet::leafletOutput(ns("mapa")),                    
+      reactable::reactableOutput(ns("tabela"))
+    )
   )
 }
     
@@ -73,7 +76,7 @@ mod_pag_busca_avancada_server <- function(id, con){
     tabela <- eventReactive(input$buscar, {
       
       rua <- toupper(input$endereco)
-      data <- as.numeric(lubridate::as_datetime(input$data))
+      data <- input$data
       
       dplyr::tbl(con, "dados") |> 
         dplyr::filter(
@@ -92,9 +95,58 @@ mod_pag_busca_avancada_server <- function(id, con){
     
     output$tabela <- reactable::renderReactable({
       tabela() |> 
-        reactable::reactable(
+        reactable::reactable(selection = "single",
           filterable = TRUE
         )
+    })
+    
+    
+    output$mapa <- leaflet::renderLeaflet({
+      id_selecionado <- reactable::getReactableState("tabela", "selected")
+      
+      shiny::validate(
+        shiny::need(
+          !is.null(id_selecionado),
+          message = "Clique em uma linha para visualizar o mapa"
+        )
+      )
+      
+      linha_selecionada <- tabela()[id_selecionado,]
+      
+      endereco <- linha_selecionada |> 
+        with(
+          paste(end_rua, end_num)
+        )
+      
+      lat_lon <- tidygeocoder::geo(
+        country = "Brazil",
+        city = "São Paulo",
+        state = "São Paulo",
+        street = endereco,
+        method = "osm") 
+      
+      dinheiro <- scales::dollar_format(prefix = "R$", big.mark = ".", decimal.mark = ",")
+      
+      linha_selecionada |> 
+        dplyr::select(-lat, -long) |> 
+        dplyr::bind_cols(lat_lon) |> 
+        dplyr::mutate(
+          texto = stringr::str_glue(
+            "{end_rua} {end_complemento}<br>
+      {dinheiro(venda_valor)}<br>
+      {imovel_area}<br>
+      {venda_data}"
+          )
+        ) |> 
+        #tidyr::drop_na() |> 
+        leaflet::leaflet(
+          width = "100%",
+          options = leaflet::leafletOptions(attributionControl = FALSE)) |> 
+        leaflet::setView(lng = mean(lat_lon$long, na.rm = TRUE),
+                lat = mean(lat_lon$lat, na.rm = TRUE), zoom = 500) |>
+        leaflet::addTiles(group = "OSM") |> 
+        leaflet::addMarkers(popup = ~texto)
+      
     })
  
   })

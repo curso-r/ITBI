@@ -19,9 +19,6 @@ app_ui <- function(request) {
       bslib::nav_panel(
         title = "Busca avançada",
         mod_pag_busca_avancada_ui("pag_busca_avancada_1")
-      ),
-      bslib::nav_panel(
-        title = "Buscar no mapa"
       )
     )
   )
