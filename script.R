@@ -17,12 +17,12 @@ links |>
   purrr::walk(function(x){
    httr::GET(x, httr::write_disk(
      overwrite = TRUE,
-     path = stringr::str_glue("arquivos/", basename(x))))
+     path = stringr::str_glue("data-raw/arquivos/", basename(x))))
     })
 
 # processa arquivos -------------------------------------------------------
 
-arquivos <- list.files("arquivos", full.names = TRUE)
+arquivos <- list.files("data-raw/arquivos", full.names = TRUE)
 
 # rascunho com ideias para a função final, abaixo
 # ler_uma_tabela <- function(arquivo){
@@ -44,7 +44,7 @@ ler_uma_tabela <- function(arquivo){
 
   tabelona <- purrr::map_dfr(colunas,
                function(coluna){
-                 readxl::read_excel(arquivo, sheet = coluna) |>
+                 readxl::read_excel(arquivo, sheet = coluna, col_types = "text") |>
                    dplyr::mutate(
                      Número = as.character(Número),
                      Bairro = as.character(Bairro),
